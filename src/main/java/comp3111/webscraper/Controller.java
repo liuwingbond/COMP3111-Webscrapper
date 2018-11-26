@@ -10,6 +10,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Hyperlink;
 import java.util.List;
+import javafx.event.*;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.io.IOException;
 
 
 /**
@@ -67,6 +72,7 @@ public class Controller {
     	String output = "";
     	double TotalPrice = 0;
     	double LowestPrice = result.get(0).getPrice();
+    	String uri = "";
     	for (Item item : result) {
     		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
     		
@@ -74,17 +80,40 @@ public class Controller {
     		TotalPrice += item.getPrice();
     		
     		//Find lowest price
-    		if (item.getPrice() < LowestPrice)
-    			LowestPrice = item.getPrice();		
+    		if (item.getPrice() < LowestPrice) {
+    			LowestPrice = item.getPrice();
+    			uri = item.getUrl();
+    		}
     	}
     			
     	textAreaConsole.setText(output);
-    	
-    	UpdateSummary(result, TotalPrice, LowestPrice);	
+
+        System.out.println("URI: " + uri);
+    	UpdateSummary(result, TotalPrice, LowestPrice, uri);	
+    }
+    
+    private static void openURI(String uri) {
+    	if(Desktop.isDesktopSupported()){
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI(uri));
+            } catch (IOException | URISyntaxException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                runtime.exec("xdg-open " + uri);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
     
     @FXML
-    private void UpdateSummary(List<Item> result, double TotalPrice, double LowestPrice) {
+    private void UpdateSummary(List<Item> result, double TotalPrice, double LowestPrice, String uri) {
     	double AvgPrice = 0;
     	int NumOfItems = result.size();
     	
@@ -94,6 +123,13 @@ public class Controller {
     	labelCount.setText(Integer.toString(NumOfItems));
     	labelPrice.setText(Double.toString(AvgPrice));
     	labelMin.setText(Double.toString(LowestPrice));
+    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
+    	    @Override
+    	    public void handle(ActionEvent e) {
+    	        System.out.println(uri);
+    	        openURI(uri);
+    	    }
+    	});
     }
     
     /**
