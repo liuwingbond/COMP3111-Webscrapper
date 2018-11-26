@@ -15,6 +15,8 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.IOException;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 
 
 /**
@@ -74,11 +76,19 @@ public class Controller {
     	int NumOfItems = result.size();
     	double TotalPrice = 0;
     	double LowestPrice = 0;
-    	String uri = "";
+    	String LowestPriceURI = "";
+    	LocalDateTime LatestDate = null;
+    	String LatestDateStr = "";
+    	String LatestURI = "";
     	
         System.out.println("Number of Results: " + result.size());
         if (NumOfItems > 0) {
         	LowestPrice = result.get(0).getPrice();
+        	LowestPriceURI = result.get(0).getUrl();
+        	LatestDate = result.get(0).getDate();
+        	LatestURI = result.get(0).getUrl();
+        	LatestDateStr = result.get(0).getDateString();
+        	
 	    	for (Item item : result) {
 	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
 	    		
@@ -89,7 +99,13 @@ public class Controller {
 		    		//Find lowest price
 		    		if (item.getPrice() < LowestPrice) {
 		    			LowestPrice = item.getPrice();
-		    			uri = item.getUrl();
+		    			LowestPriceURI = item.getUrl();
+		    		}
+		    		
+		    		if(item.getDate().compareTo(LatestDate) > 0) {
+		    			LatestDate = item.getDate();
+		    			LatestDateStr = item.getDateString();
+		    			LatestURI = item.getUrl();
 		    		}
 	    		} else 
 	    			NumOfItems--;
@@ -98,7 +114,7 @@ public class Controller {
 	    	textAreaConsole.setText(output);
 
         }
-    	UpdateSummary(NumOfItems, TotalPrice, LowestPrice, uri);
+    	UpdateSummary(NumOfItems, TotalPrice, LowestPrice, LowestPriceURI, LatestDateStr, LatestURI);
     }
     
     //Use parameter uri to open the browser
@@ -123,7 +139,7 @@ public class Controller {
     }
     
     @FXML
-    private void UpdateSummary(int NumOfItems, double TotalPrice, double LowestPrice, String uri) {
+    private void UpdateSummary(int NumOfItems, double TotalPrice, double LowestPrice, String LowestPriceURI, String LatestDateStr, String LatestURI) {
     	if (NumOfItems > 0) {
 	    	double AvgPrice = 0;
 	    	
@@ -131,13 +147,24 @@ public class Controller {
 	    	AvgPrice = TotalPrice / NumOfItems;
 	    	
 	    	labelCount.setText(Integer.toString(NumOfItems));
+	    	
 	    	labelPrice.setText(Double.toString(AvgPrice));
+	    	
 	    	labelMin.setText(Double.toString(LowestPrice));
 	    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
 	    	    @Override
 	    	    public void handle(ActionEvent e) {
-	    	        System.out.println(uri);
-	    	        openURI(uri);
+	    	        System.out.println(LowestPriceURI);
+	    	        openURI(LowestPriceURI);
+	    	    }
+	    	});
+	    	
+	    	labelLatest.setText(LatestDateStr);
+	    	labelLatest.setOnAction(new EventHandler<ActionEvent>() {
+	    	    @Override
+	    	    public void handle(ActionEvent e) {
+	    	        System.out.println(LatestURI);
+	    	        openURI(LatestURI);
 	    	    }
 	    	});
     	} else {

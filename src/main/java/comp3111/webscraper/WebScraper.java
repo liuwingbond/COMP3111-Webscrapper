@@ -1,12 +1,14 @@
 package comp3111.webscraper;
 
 import java.net.URLEncoder;
+import java.time.*;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlTime;
 import java.util.Vector;
 
 
@@ -99,7 +101,8 @@ public class WebScraper {
 				HtmlElement htmlItem = (HtmlElement) items.get(i);
 				HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//p[@class='result-info']/a"));
 				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//a/span[@class='result-price']"));
-
+				HtmlTime date = ((HtmlTime) htmlItem.getFirstByXPath(".//p[@class='result-info']/time"));
+				
 				// It is possible that an item doesn't have any price, we set the price to 0.0
 				// in this case
 				String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
@@ -110,6 +113,7 @@ public class WebScraper {
 
 				item.setPrice(new Double(itemPrice.replace("$", "")));
 
+				item.setDate(date.getAttribute("datetime"));
 				result.add(item);
 			}
 			client.close();
