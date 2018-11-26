@@ -66,21 +66,34 @@ public class Controller {
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
     	String output = "";
     	double TotalPrice = 0;
-    	double AvgPrice = 0;
-    	double LowestPrice = 0;
-    	int NumOfItems = result.size();
+    	double LowestPrice = result.get(0).getPrice();
     	for (Item item : result) {
     		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+    		
+    		//Calculate total price
     		TotalPrice += item.getPrice();
+    		
+    		//Find lowest price
+    		if (item.getPrice() < LowestPrice)
+    			LowestPrice = item.getPrice();		
     	}
-    	
-    	//Calculate average price
-    	AvgPrice = TotalPrice / NumOfItems;
     			
     	textAreaConsole.setText(output);
     	
+    	UpdateSummary(result, TotalPrice, LowestPrice);	
+    }
+    
+    @FXML
+    private void UpdateSummary(List<Item> result, double TotalPrice, double LowestPrice) {
+    	double AvgPrice = 0;
+    	int NumOfItems = result.size();
+    	
+    	//Calculate average price
+    	AvgPrice = TotalPrice / NumOfItems;
+    	
     	labelCount.setText(Integer.toString(NumOfItems));
     	labelPrice.setText(Double.toString(AvgPrice));
+    	labelMin.setText(Double.toString(LowestPrice));
     }
     
     /**
