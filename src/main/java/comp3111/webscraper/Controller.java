@@ -69,29 +69,39 @@ public class Controller {
     private void actionSearch() {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
+    	
     	String output = "";
+    	int NumOfItems = result.size();
     	double TotalPrice = 0;
-    	double LowestPrice = result.get(0).getPrice();
+    	double LowestPrice = 0;
     	String uri = "";
-    	for (Item item : result) {
-    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
-    		
-    		//Calculate total price
-    		TotalPrice += item.getPrice();
-    		
-    		//Find lowest price
-    		if (item.getPrice() < LowestPrice) {
-    			LowestPrice = item.getPrice();
-    			uri = item.getUrl();
-    		}
-    	}
-    			
-    	textAreaConsole.setText(output);
+    	
+        System.out.println("Number of Results: " + result.size());
+        if (NumOfItems > 0) {
+        	LowestPrice = result.get(0).getPrice();
+	    	for (Item item : result) {
+	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+	    		
+	    		if (item.getPrice() > 0) {
+		    		//Calculate total price
+		    		TotalPrice += item.getPrice();
+		    		
+		    		//Find lowest price
+		    		if (item.getPrice() < LowestPrice) {
+		    			LowestPrice = item.getPrice();
+		    			uri = item.getUrl();
+		    		}
+	    		} else 
+	    			NumOfItems--;
+	    	}
+	    			
+	    	textAreaConsole.setText(output);
 
-        System.out.println("URI: " + uri);
-    	UpdateSummary(result, TotalPrice, LowestPrice, uri);	
+        }
+    	UpdateSummary(NumOfItems, TotalPrice, LowestPrice, uri);
     }
     
+    //Use parameter uri to open the browser
     private static void openURI(String uri) {
     	if(Desktop.isDesktopSupported()){
             Desktop desktop = Desktop.getDesktop();
@@ -113,23 +123,29 @@ public class Controller {
     }
     
     @FXML
-    private void UpdateSummary(List<Item> result, double TotalPrice, double LowestPrice, String uri) {
-    	double AvgPrice = 0;
-    	int NumOfItems = result.size();
-    	
-    	//Calculate average price
-    	AvgPrice = TotalPrice / NumOfItems;
-    	
-    	labelCount.setText(Integer.toString(NumOfItems));
-    	labelPrice.setText(Double.toString(AvgPrice));
-    	labelMin.setText(Double.toString(LowestPrice));
-    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
-    	    @Override
-    	    public void handle(ActionEvent e) {
-    	        System.out.println(uri);
-    	        openURI(uri);
-    	    }
-    	});
+    private void UpdateSummary(int NumOfItems, double TotalPrice, double LowestPrice, String uri) {
+    	if (NumOfItems > 0) {
+	    	double AvgPrice = 0;
+	    	
+	    	//Calculate average price
+	    	AvgPrice = TotalPrice / NumOfItems;
+	    	
+	    	labelCount.setText(Integer.toString(NumOfItems));
+	    	labelPrice.setText(Double.toString(AvgPrice));
+	    	labelMin.setText(Double.toString(LowestPrice));
+	    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
+	    	    @Override
+	    	    public void handle(ActionEvent e) {
+	    	        System.out.println(uri);
+	    	        openURI(uri);
+	    	    }
+	    	});
+    	} else {
+    		labelCount.setText("-");
+	    	labelPrice.setText("-");
+	    	labelMin.setText("-");
+	    	labelLatest.setText("-");
+    	}
     }
     
     /**
