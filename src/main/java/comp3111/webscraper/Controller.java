@@ -65,12 +65,22 @@ public class Controller {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
     	String output = "";
+    	double TotalPrice = 0;
+    	double AvgPrice = 0;
+    	double LowestPrice = 0;
+    	int NumOfItems = result.size();
     	for (Item item : result) {
     		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+    		TotalPrice += item.getPrice();
     	}
+    	
+    	//Calculate average price
+    	AvgPrice = TotalPrice / NumOfItems;
+    			
     	textAreaConsole.setText(output);
     	
-    	labelCount.setText(Integer.toString(result.size()));
+    	labelCount.setText(Integer.toString(NumOfItems));
+    	labelPrice.setText(Double.toString(AvgPrice));
     }
     
     /**
