@@ -4,4 +4,8 @@ target/*
 *.DS_STORE
 bin
 bin/*
+<<<<<<< HEAD
+=======
+/.gradle/
+>>>>>>> branch 'master' of https://github.com/kelvinbbg/comp3111-project.git
 /build/
