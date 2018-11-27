@@ -69,6 +69,7 @@ public class Controller {
      */
     @FXML
     private void actionSearch() {
+    	textAreaConsole.setText("Loading output...");
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
     	
@@ -81,7 +82,6 @@ public class Controller {
     	String LatestDateStr = "";
     	String LatestURI = "";
     	
-        System.out.println("Number of Results: " + result.size());
         if (NumOfItems > 0) {
         	LowestPrice = result.get(0).getPrice();
         	LowestPriceURI = result.get(0).getUrl();
@@ -113,7 +113,8 @@ public class Controller {
 	    			
 	    	textAreaConsole.setText(output);
 
-        }
+        } else
+        	textAreaConsole.setText("Search result empty");
     	UpdateSummary(NumOfItems, TotalPrice, LowestPrice, LowestPriceURI, LatestDateStr, LatestURI);
     }
     
@@ -154,7 +155,7 @@ public class Controller {
 	    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
 	    	    @Override
 	    	    public void handle(ActionEvent e) {
-	    	        System.out.println(LowestPriceURI);
+	    	        System.out.println("Opening URL of the lowest price item " + LowestPriceURI);
 	    	        openURI(LowestPriceURI);
 	    	    }
 	    	});
@@ -163,7 +164,7 @@ public class Controller {
 	    	labelLatest.setOnAction(new EventHandler<ActionEvent>() {
 	    	    @Override
 	    	    public void handle(ActionEvent e) {
-	    	        System.out.println(LatestURI);
+	    	        System.out.println("Opening URL of the latest item " + LatestURI);
 	    	        openURI(LatestURI);
 	    	    }
 	    	});
