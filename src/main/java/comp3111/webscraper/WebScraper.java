@@ -118,7 +118,7 @@ public class WebScraper {
 				item.setDate(date.getAttribute("datetime"));
 				result.add(item);
 			}
-			scrapeOther(keyword, result);
+			scrapePreloved(keyword, result);
 			client.close();
 			return result;
 		} catch (Exception e) {
@@ -127,8 +127,7 @@ public class WebScraper {
 		return null;
 	}
 
-	public List<Item> scrapeOther(String keyword, Vector<Item> CraigslistResult) {
-
+	public void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
 		try {
 			System.out.println("Scraping from " + DEFAULT_URL2);
 			String searchUrl = DEFAULT_URL2 + "search?orderBy=priceDesc&keyword=" + URLEncoder.encode(keyword, "UTF-8");
@@ -136,7 +135,6 @@ public class WebScraper {
 
 			
 			List<?> items = (List<?>) page.getByXPath("//li[@class='search-result']");
-			Vector<Item> result = new Vector<Item>();
 
 			for (int i = 0; i < items.size(); i++) {
 				HtmlElement htmlItem = (HtmlElement) items.get(i);
@@ -168,10 +166,8 @@ public class WebScraper {
 				CraigslistResult.add(item);
 			}
 			client.close();
-			return result;
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		return null;
 	}
 }

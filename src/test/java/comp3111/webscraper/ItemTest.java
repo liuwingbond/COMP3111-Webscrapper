@@ -20,6 +20,6 @@ public class ItemTest {
 	public void scrapeOther() {
 		WebScraper w = new WebScraper();
 		Vector<Item> result = new Vector<Item>();
-		w.scrapeOther("aaaaa", result);
+		w.scrapePreloved("aaaaa", result);
 	}
 }
