@@ -67,6 +67,7 @@ import java.util.Vector;
 public class WebScraper {
 
 	private static final String DEFAULT_URL = "https://newyork.craigslist.org/";
+	private static final String DEFAULT_URL2 = "https://www.preloved.co.uk/";
 	private WebClient client;
 
 	/**
@@ -120,4 +121,40 @@ public class WebScraper {
 		return null;
 	}
 
+	public List<Item> scrapeOther(String keyword, Vector<Item> CraigslistResult) {
+
+		try {
+			String searchUrl = DEFAULT_URL2 + "search?orderBy=priceDesc&keyword=" + URLEncoder.encode(keyword, "UTF-8");
+			HtmlPage page = client.getPage(searchUrl);
+
+			
+			List<?> items = (List<?>) page.getByXPath("//li[@class='search-result']");
+			
+			Vector<Item> result = new Vector<Item>();
+
+			for (int i = 0; i < items.size(); i++) {
+				HtmlElement htmlItem = (HtmlElement) items.get(i);
+				HtmlElement itemName = ((HtmlAnchor) htmlItem.getFirstByXPath(".//div/header/h2/a/span"));
+				HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//div/header/h2/a"));
+				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//div/header/span/span/span"));
+
+				// It is possible that an item doesn't have any price, we set the price to 0.0
+				// in this case
+				String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
+
+				Item item = new Item();
+				item.setTitle(itemName.asText());
+				item.setUrl(DEFAULT_URL + itemAnchor.getHrefAttribute());
+
+				item.setPrice(new Double(itemPrice.replace("£", "")));
+
+				result.add(item);
+			}
+			client.close();
+			return result;
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return null;
+	}
 }
