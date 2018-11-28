@@ -117,10 +117,10 @@ public class WebScraper {
 				Item item = new Item();
 				item.setTitle(itemAnchor.asText());
 				item.setUrl(itemAnchor.getHrefAttribute());
-
 				item.setPrice(new Double(itemPrice.replace("$", "")));
-
 				item.setDate(date.getAttribute("datetime"));
+				item.setSource(DEFAULT_URL2);
+				
 				result.add(item);
 			}
 			sortItemsList(result);
@@ -159,6 +159,7 @@ public class WebScraper {
 				item.setTitle(itemName.asText());
 				item.setUrl(itemAnchor.getHrefAttribute());
 				item.setPrice(new Double(itemPrice.replaceAll("\\D", "")));
+				item.setSource(DEFAULT_URL2);
 				
 				date = date.replaceAll("This advert was updated | ago", "");
 

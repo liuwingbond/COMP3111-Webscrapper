@@ -69,26 +69,18 @@ public class Controller {
      */
     @FXML
     private void actionSearch() {
-    	textAreaConsole.setText("Loading output...");
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
+    	textAreaConsole.setText("Loading output...");
+    	System.out.println("Loading output...");
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
     	
     	String output = "";
-    	int NumOfItems = result.size();
+    	int NumOfItems = result.size(); //Do not remove! Need for subtracting "0" price items
     	double TotalPrice = 0;
-    	double LowestPrice = 0;
-    	String LowestPriceURI = "";
-    	LocalDateTime LatestDate = null;
-    	String LatestDateStr = "";
-    	String LatestURI = "";
+    	int MinPriceItemIndex = 0;
+    	int LatestItemIndex = 0;
     	
-        if (NumOfItems > 0) {
-        	LowestPrice = result.get(0).getPrice();
-        	LowestPriceURI = result.get(0).getUrl();
-        	LatestDate = result.get(0).getDate();
-        	LatestURI = result.get(0).getUrl();
-        	LatestDateStr = result.get(0).getDateString();
-        	
+        if (NumOfItems > 0) {        	
 	    	for (Item item : result) {
 	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
 	    		
@@ -97,16 +89,12 @@ public class Controller {
 		    		TotalPrice += item.getPrice();
 		    		
 		    		//Find lowest price
-		    		if (item.getPrice() < LowestPrice) {
-		    			LowestPrice = item.getPrice();
-		    			LowestPriceURI = item.getUrl();
-		    		}
+		    		if (item.getPrice() < result.get(MinPriceItemIndex).getPrice())
+		    			MinPriceItemIndex = result.indexOf(item);
 		    		
-		    		if(item.getDate().compareTo(LatestDate) > 0) {
-		    			LatestDate = item.getDate();
-		    			LatestDateStr = item.getDateString();
-		    			LatestURI = item.getUrl();
-		    		}
+		    		//Find latest item
+		    		if(item.getDate().compareTo(result.get(LatestItemIndex).getDate()) > 0)
+		    			LatestItemIndex = result.indexOf(item);
 	    		} else 
 	    			NumOfItems--;
 	    	}
@@ -115,7 +103,8 @@ public class Controller {
 
         } else
         	textAreaConsole.setText("Search result empty");
-    	UpdateSummary(NumOfItems, TotalPrice, LowestPrice, LowestPriceURI, LatestDateStr, LatestURI);
+    	UpdateSummary(result, NumOfItems, TotalPrice, MinPriceItemIndex, LatestItemIndex);
+    	System.out.println("Finish loading");
     }
     
     //Use parameter uri to open the browser
@@ -140,7 +129,7 @@ public class Controller {
     }
     
     @FXML
-    private void UpdateSummary(int NumOfItems, double TotalPrice, double LowestPrice, String LowestPriceURI, String LatestDateStr, String LatestURI) {
+    private void UpdateSummary(List<Item> result, int NumOfItems, double TotalPrice, int MinPriceItemIndex, int LatestItemIndex) {
     	if (NumOfItems > 0) {
 	    	double AvgPrice = 0;
 	    	
@@ -151,21 +140,23 @@ public class Controller {
 	    	
 	    	labelPrice.setText(Double.toString(AvgPrice));
 	    	
-	    	labelMin.setText(Double.toString(LowestPrice));
+	    	Item MinPriceItem = result.get(MinPriceItemIndex);
+	    	labelMin.setText(Double.toString(MinPriceItem.getPrice()));
 	    	labelMin.setOnAction(new EventHandler<ActionEvent>() {
 	    	    @Override
 	    	    public void handle(ActionEvent e) {
-	    	        System.out.println("Opening URL of the lowest price item " + LowestPriceURI);
-	    	        openURI(LowestPriceURI);
+	    	        System.out.println("Opening URL of the lowest price item " + MinPriceItem.getUrl());
+	    	        openURI(MinPriceItem.getUrl());
 	    	    }
 	    	});
-	    	
-	    	labelLatest.setText(LatestDateStr);
+
+	    	Item LatestItem = result.get(LatestItemIndex);
+	    	labelLatest.setText(LatestItem.getDateString());
 	    	labelLatest.setOnAction(new EventHandler<ActionEvent>() {
 	    	    @Override
 	    	    public void handle(ActionEvent e) {
-	    	        System.out.println("Opening URL of the latest item " + LatestURI);
-	    	        openURI(LatestURI);
+	    	        System.out.println("Opening URL of the latest item " + LatestItem.getUrl());
+	    	        openURI(LatestItem.getUrl());
 	    	    }
 	    	});
     	} else {
