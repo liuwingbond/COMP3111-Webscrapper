@@ -1,6 +1,7 @@
 package comp3111.webscraper;
 
 import java.net.URLEncoder;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -102,26 +103,47 @@ public class WebScraper {
 			
 			List<?> items = (List<?>) page.getByXPath("//li[@class='result-row']");
 			
+			List<?> totalcount = (List<?>) page.getByXPath("//span[@class='buttons']");
+			HtmlElement countitem = (HtmlElement) totalcount.get(0);
+			HtmlElement total = ((HtmlElement) countitem.getFirstByXPath(".//span/span[@class='totalcount']"));
+			HtmlAnchor totalAnchor = ((HtmlAnchor) countitem.getFirstByXPath(".//a[@class='button next']"));
+			
 			Vector<Item> result = new Vector<Item>();
-
-			for (int i = 0; i < items.size(); i++) {
-				HtmlElement htmlItem = (HtmlElement) items.get(i);
-				HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//p[@class='result-info']/a"));
-				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//a/span[@class='result-price']"));
-				HtmlTime date = ((HtmlTime) htmlItem.getFirstByXPath(".//p[@class='result-info']/time"));
+			int j = 1;
+			while (result.size() < Integer.parseInt(total.asText())) {
+				String loading = "Scraping page " + j + "...";
+				System.out.println(loading);
+				j++;
+				for (int i = 0; i < items.size(); i++) {
+					HtmlElement htmlItem = (HtmlElement) items.get(i);
+					HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//p[@class='result-info']/a"));
+					HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//a/span[@class='result-price']"));
+					HtmlTime date = ((HtmlTime) htmlItem.getFirstByXPath(".//p[@class='result-info']/time"));
+					
+					// It is possible that an item doesn't have any price, we set the price to 0.0
+					// in this case
+					String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
+	
+					Item item = new Item();
+					item.setTitle(itemAnchor.asText());
+					item.setUrl(itemAnchor.getHrefAttribute());
+					item.setPrice(new Double(itemPrice.replace("$", "")));
+					item.setDate(date.getAttribute("datetime"));
+					item.setSource(DEFAULT_URL);
+					
+					result.add(item);
+				}
+				searchUrl = DEFAULT_URL + totalAnchor.getHrefAttribute();
+				page = client.getPage(searchUrl);
+				items.clear();
 				
-				// It is possible that an item doesn't have any price, we set the price to 0.0
-				// in this case
-				String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
-
-				Item item = new Item();
-				item.setTitle(itemAnchor.asText());
-				item.setUrl(itemAnchor.getHrefAttribute());
-				item.setPrice(new Double(itemPrice.replace("$", "")));
-				item.setDate(date.getAttribute("datetime"));
-				item.setSource(DEFAULT_URL2);
-				
-				result.add(item);
+				if (result.size() >= Integer.parseInt(total.asText()))
+					break;
+				items = (List<?>) page.getByXPath("//li[@class='result-row']");
+				totalcount = (List<?>) page.getByXPath("//span[@class='buttons']");
+				countitem = (HtmlElement) totalcount.get(0);
+				total = ((HtmlElement) countitem.getFirstByXPath(".//span/span[@class='totalcount']"));
+				totalAnchor = ((HtmlAnchor) countitem.getFirstByXPath(".//a[@class='button next']"));
 			}
 			sortItemsList(result);
 			scrapePreloved(keyword, result);
@@ -133,7 +155,7 @@ public class WebScraper {
 		}
 		return null;
 	}
-
+	
 	private void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
 		try {
 			System.out.println("Scraping from " + DEFAULT_URL2);
