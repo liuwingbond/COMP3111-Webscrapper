@@ -15,11 +15,4 @@ public class ItemTest {
 		i.setTitle("ABCDE");
 		assertEquals(i.getTitle(), "ABCDE");
 	}
-	
-	@Test
-	public void scrapeOther() {
-		WebScraper w = new WebScraper();
-		Vector<Item> result = new Vector<Item>();
-		w.scrapePreloved("aaaaa", result);
-	}
 }

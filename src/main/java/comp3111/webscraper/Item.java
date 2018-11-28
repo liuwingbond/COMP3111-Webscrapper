@@ -30,6 +30,12 @@ public class Item {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+	public LocalDateTime getDate() {
+		return date;
+	}
+	public String getDateString() {
+		return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
+	}
 	public void setDate(String date) {
 		this.date = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
 	}
@@ -38,12 +44,6 @@ public class Item {
 	}
 	public void setDate(LocalDateTime date) {
 		this.date = date;
-	}
-	public LocalDateTime getDate() {
-		return date;
-	}
-	public String getDateString() {
-		return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
 	}
 
 }

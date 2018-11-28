@@ -3,6 +3,7 @@ package comp3111.webscraper;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -82,6 +83,10 @@ public class WebScraper {
 		client.getOptions().setJavaScriptEnabled(false);
 	}
 
+	private void sortItemsList (List<Item> list) {
+		list.sort(Comparator.comparingDouble(Item::getPrice).reversed());
+	}
+	
 	/**
 	 * The only method implemented in this class, to scrape web content from the craigslist
 	 * 
@@ -118,8 +123,10 @@ public class WebScraper {
 				item.setDate(date.getAttribute("datetime"));
 				result.add(item);
 			}
+			sortItemsList(result);
 			scrapePreloved(keyword, result);
 			client.close();
+			sortItemsList(result);
 			return result;
 		} catch (Exception e) {
 			System.out.println(e);
@@ -127,7 +134,7 @@ public class WebScraper {
 		return null;
 	}
 
-	public void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
+	private void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
 		try {
 			System.out.println("Scraping from " + DEFAULT_URL2);
 			String searchUrl = DEFAULT_URL2 + "search?orderBy=priceDesc&keyword=" + URLEncoder.encode(keyword, "UTF-8");
