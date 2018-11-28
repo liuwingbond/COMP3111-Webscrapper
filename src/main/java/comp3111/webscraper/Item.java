@@ -1,7 +1,8 @@
 package comp3111.webscraper;
 
-import java.time.*;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 
 
@@ -29,14 +30,20 @@ public class Item {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	public void setDate(String date) {
-		this.date = this.date.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
-	}
 	public LocalDateTime getDate() {
 		return date;
 	}
 	public String getDateString() {
 		return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
+	}
+	public void setDate(String date) {
+		this.date = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd kk:mm"));
+	}
+	public void setDate(long amountToSubtract, ChronoUnit unit) {
+		this.date = LocalDateTime.now().minus(amountToSubtract, unit);
+	}
+	public void setDate(LocalDateTime date) {
+		this.date = date;
 	}
 
 }

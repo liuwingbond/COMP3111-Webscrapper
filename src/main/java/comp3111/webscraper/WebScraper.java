@@ -1,7 +1,9 @@
 package comp3111.webscraper;
 
 import java.net.URLEncoder;
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -81,6 +83,10 @@ public class WebScraper {
 		client.getOptions().setJavaScriptEnabled(false);
 	}
 
+	private void sortItemsList (List<Item> list) {
+		list.sort(Comparator.comparingDouble(Item::getPrice).reversed());
+	}
+	
 	/**
 	 * The only method implemented in this class, to scrape web content from the craigslist
 	 * 
@@ -90,7 +96,7 @@ public class WebScraper {
 	public List<Item> scrape(String keyword) {
 
 		try {
-			String searchUrl = DEFAULT_URL + "search/sss?sort=rel&query=" + URLEncoder.encode(keyword, "UTF-8");
+			String searchUrl = DEFAULT_URL + "search/sss?sort=pricedsc&query=" + URLEncoder.encode(keyword, "UTF-8");
 			HtmlPage page = client.getPage(searchUrl);
 
 			
@@ -110,14 +116,17 @@ public class WebScraper {
 
 				Item item = new Item();
 				item.setTitle(itemAnchor.asText());
-				item.setUrl(DEFAULT_URL + itemAnchor.getHrefAttribute());
+				item.setUrl(itemAnchor.getHrefAttribute());
 
 				item.setPrice(new Double(itemPrice.replace("$", "")));
 
 				item.setDate(date.getAttribute("datetime"));
 				result.add(item);
 			}
+			sortItemsList(result);
+			scrapePreloved(keyword, result);
 			client.close();
+			sortItemsList(result);
 			return result;
 		} catch (Exception e) {
 			System.out.println(e);
@@ -125,40 +134,47 @@ public class WebScraper {
 		return null;
 	}
 
-	public List<Item> scrapeOther(String keyword, Vector<Item> CraigslistResult) {
-
+	private void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
 		try {
+			System.out.println("Scraping from " + DEFAULT_URL2);
 			String searchUrl = DEFAULT_URL2 + "search?orderBy=priceDesc&keyword=" + URLEncoder.encode(keyword, "UTF-8");
 			HtmlPage page = client.getPage(searchUrl);
 
 			
 			List<?> items = (List<?>) page.getByXPath("//li[@class='search-result']");
-			
-			Vector<Item> result = new Vector<Item>();
 
 			for (int i = 0; i < items.size(); i++) {
 				HtmlElement htmlItem = (HtmlElement) items.get(i);
-				HtmlElement itemName = ((HtmlAnchor) htmlItem.getFirstByXPath(".//div/header/h2/a/span"));
+				HtmlElement itemName = ((HtmlElement) htmlItem.getFirstByXPath(".//div/header/h2/a/span"));
 				HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//div/header/h2/a"));
-				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//div/header/span/span/span"));
+				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//div/header/span/span[@class='search-result__meta bold t-color--2-2 u-capitalize is-price']/span"));
+
+				HtmlPage itemPage = client.getPage(itemAnchor.getHrefAttribute());
+				String date = ((HtmlElement) itemPage.getFirstByXPath("//li[@class='classified__additional__meta__item classified__timeago']")).asText();
 
 				// It is possible that an item doesn't have any price, we set the price to 0.0
 				// in this case
 				String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
-
 				Item item = new Item();
 				item.setTitle(itemName.asText());
-				item.setUrl(DEFAULT_URL + itemAnchor.getHrefAttribute());
+				item.setUrl(itemAnchor.getHrefAttribute());
+				item.setPrice(new Double(itemPrice.replaceAll("\\D", "")));
+				
+				date = date.replaceAll("This advert was updated | ago", "");
 
-				item.setPrice(new Double(itemPrice.replace("£", "")));
-
-				result.add(item);
+				if (date.matches("(.*)hour(.?)"))
+					item.setDate(Long.parseLong(date.replaceAll("\\D", "")), ChronoUnit.HOURS);
+				else if (date.matches("(.*)day(.?)"))
+					item.setDate(Long.parseLong(date.replaceAll("\\D", "")), ChronoUnit.DAYS);
+				else if (date.matches("(.*)month(.*)"))
+					item.setDate(Long.parseLong(date.replaceAll("\\D", "")), ChronoUnit.MONTHS);
+				else
+					item.setDate(LocalDateTime.now());
+				CraigslistResult.add(item);
 			}
 			client.close();
-			return result;
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-		return null;
 	}
 }
