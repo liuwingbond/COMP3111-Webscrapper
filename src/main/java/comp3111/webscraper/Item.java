@@ -11,6 +11,7 @@ public class Item {
 	private double price ;
 	private String url ;
 	private LocalDateTime date;
+	private String source;
 	
 	public String getTitle() {
 		return title;
@@ -45,5 +46,10 @@ public class Item {
 	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
-
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String src) {
+		this.source = src;
+	}
 }
