@@ -119,7 +119,7 @@ public class WebScraper {
 				item.setUrl(itemAnchor.getHrefAttribute());
 				item.setPrice(new Double(itemPrice.replace("$", "")));
 				item.setDate(date.getAttribute("datetime"));
-				item.setSource(DEFAULT_URL2);
+				item.setSource(DEFAULT_URL);
 				
 				result.add(item);
 			}
