@@ -9,6 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Button;
 import java.util.List;
 import javafx.event.*;
 import java.awt.Desktop;
@@ -27,6 +29,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Hyperlink;
 import javafx.util.Callback;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 
 /**
  * 
@@ -34,6 +38,13 @@ import javafx.util.Callback;
  * 
  */
 public class Controller {
+	
+	@FXML
+	private MenuItem LastSearch;
+	
+	@FXML
+	private Button RefineButton;
+	
 
     @FXML 
     private Label labelCount; 
@@ -49,6 +60,9 @@ public class Controller {
 
     @FXML
     private TextField textFieldKeyword;
+    
+    @FXML
+   	private TextField textFieldRefine;
     
     @FXML
     private TextArea textAreaConsole;
@@ -69,6 +83,9 @@ public class Controller {
 
     @FXML
     private TableColumn<Item,LocalDateTime> date;  
+    
+    public String lastrecord = "";
+    public String nowrecord ="";
     
     
     /**
@@ -91,6 +108,9 @@ public class Controller {
 	 */
     @FXML
     private void actionSearch() {
+    	LastSearch.setDisable(false);
+    	lastrecord = nowrecord;
+    	nowrecord = textFieldKeyword.getText();
     	tableView.getItems().clear();
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
     	System.out.println("Loading output...");
@@ -120,7 +140,8 @@ public class Controller {
 	    		} else 
 	    			NumOfItems--;
 	    	}
-	    			
+	    	
+	    	RefineButton.setDisable(false);	
 	    	textAreaConsole.setText(output);
 	        UpdateTable(result);
 
@@ -266,8 +287,122 @@ public class Controller {
      * Called when the new button is pressed. Very dummy action - print something in the command prompt.
      */
     @FXML
-    private void actionNew() {
-    	System.out.println("actionNew");
+    private void actionLast() {
+    	LastSearch.setDisable(true);
+    	tableView.getItems().clear();
+    	System.out.println("actionSearch: " + lastrecord);
+    	System.out.println("Loading output...");
+    	List<Item> result = scraper.scrape(lastrecord);
+    	
+    	String output = "";
+    	int NumOfItems = result.size(); //Do not remove! Need for subtracting "0" price items
+    	double TotalPrice = 0;
+    	int MinPriceItemIndex = 0;
+    	int LatestItemIndex = 0;
+    	
+        if (NumOfItems > 0) {        	
+	    	for (Item item : result) {
+	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+	    		
+	    		if (item.getPrice() > 0) {
+		    		//Calculate total price
+		    		TotalPrice += item.getPrice();
+		    		
+		    		//Find lowest price
+		    		if (item.getPrice() < result.get(MinPriceItemIndex).getPrice())
+		    			MinPriceItemIndex = result.indexOf(item);
+		    		
+		    		//Find latest item
+		    		if(item.getDate().compareTo(result.get(LatestItemIndex).getDate()) > 0)
+		    			LatestItemIndex = result.indexOf(item);
+	    		} else 
+	    			NumOfItems--;
+	    	}
+	    	
+	    	
+	    	textAreaConsole.setText(output);
+	        UpdateTable(result);
+
+        } else
+        	textAreaConsole.setText("Search result empty");
+    	UpdateSummary(result, NumOfItems, TotalPrice, MinPriceItemIndex, LatestItemIndex);
+    	System.out.println("Finish loading");
+    	
+    }
+    @FXML
+    private void actionTeam() {
+    	String msg = "<html>Shek Wing Chun,wcshekaa,wcshek<br>LAI Ho Man,hmlaiad,kelvinbbg<br>LIU Wing Bond,wbliu,liuwingbond";
+        JOptionPane optionPane = new JOptionPane();
+        optionPane.setMessage(msg);
+        optionPane.setMessageType(JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = optionPane.createDialog(null, "About Your Team");
+        dialog.setVisible(true);
+     	
+    	
+    }
+    @FXML
+    private void actionRefine() {
+    	
+    	tableView.getItems().clear();
+    	RefineButton.setDisable(true);
+    	System.out.println("actionSearch: " + textFieldRefine.getText());
+    	System.out.println("Loading output...");
+    	List<Item> result = scraper.scrape(textFieldRefine.getText());
+    	
+    	
+    	
+    	String output = "";
+    	int NumOfItems = result.size(); //Do not remove! Need for subtracting "0" price items
+    	double TotalPrice = 0;
+    	int MinPriceItemIndex = 0;
+    	int LatestItemIndex = 0;
+    	
+        if (NumOfItems > 0) {        	
+	    	for (Item item : result) {
+	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+	    		
+	    		if (item.getPrice() > 0) {
+		    		//Calculate total price
+		    		TotalPrice += item.getPrice();
+		    		
+		    		//Find lowest price
+		    		if (item.getPrice() < result.get(MinPriceItemIndex).getPrice())
+		    			MinPriceItemIndex = result.indexOf(item);
+		    		
+		    		//Find latest item
+		    		if(item.getDate().compareTo(result.get(LatestItemIndex).getDate()) > 0)
+		    			LatestItemIndex = result.indexOf(item);
+	    		} else 
+	    			NumOfItems--;
+	    	}
+	    	
+	    	
+	    	textAreaConsole.setText(output);
+	        UpdateTable(result);
+
+        } else
+        	textAreaConsole.setText("Search result empty");
+    	UpdateSummary(result, NumOfItems, TotalPrice, MinPriceItemIndex, LatestItemIndex);
+    	System.out.println("Finish loading");
+    	
+    }
+    @FXML
+    private void actionQuit() {
+    	System.exit(0);
+    }
+    @FXML
+    private void actionClose() {
+    	tableView.getItems().clear();
+    	textAreaConsole.setText("");
+    	RefineButton.setDisable(true);
+    	textFieldRefine.setText("");
+    	textFieldKeyword.setText("");
+    	labelCount.setText("<total>");
+    	labelPrice.setText("<AvgPrice>");
+    	labelMin.setText("<Lowest>");
+    	labelLatest.setText("<Latest>");
+    	
     }
 }
+
 
