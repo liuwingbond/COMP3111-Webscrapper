@@ -21,10 +21,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * 
- * @author kevinw
- *
- *
- * Controller class that manage GUI interaction. Please see document about JavaFX for details.
+ * Class that manage GUI interaction.
  * 
  */
 public class Controller {
@@ -64,9 +61,9 @@ public class Controller {
     	
     }
     
-    /**
-     * Called when the search button is pressed.
-     */
+	/**
+	 * Called when Go button is clicked
+	 */
     @FXML
     private void actionSearch() {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
@@ -106,7 +103,10 @@ public class Controller {
     	System.out.println("Finish loading");
     }
     
-    //Use parameter uri to open the browser
+    /**
+     * To open the specific URI in browser
+     * @param uri - URI to be opened in browser
+     */
     private static void openURI(String uri) {
     	if(Desktop.isDesktopSupported()){
             Desktop desktop = Desktop.getDesktop();
@@ -127,6 +127,14 @@ public class Controller {
         }
     }
     
+    /**
+     * Update the summary tab with scrapped data
+     * @param result
+     * @param NumOfItems
+     * @param TotalPrice
+     * @param MinPriceItemIndex
+     * @param LatestItemIndex
+     */
     @FXML
     private void UpdateSummary(List<Item> result, int NumOfItems, double TotalPrice, int MinPriceItemIndex, int LatestItemIndex) {
     	if (NumOfItems > 0) {
