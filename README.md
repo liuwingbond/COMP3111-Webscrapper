@@ -1,4 +1,12 @@
 # COMP3111: Software Engineering Project - Webscrapper
+
+## Team Members Info
+|Name|Task 1|Task 2|
+|---|---|---|
+|Lai Ho Man|Basic 3|Basic 4|
+|Liu Wing Bond|Basic 1|Basic 2|
+|Shek Wing Chun|Basic 5|Basic 6|
+
 ## Project Problem Statement and Activities
 
 This is the modified README for the Martin0 branch
