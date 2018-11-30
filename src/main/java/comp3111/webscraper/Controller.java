@@ -36,6 +36,8 @@ import javafx.util.Callback;
  */
 public class Controller {
 	
+	
+	
 	@FXML
 	private Button RefineButton;
 	
@@ -54,6 +56,9 @@ public class Controller {
 
     @FXML
     private TextField textFieldKeyword;
+    
+    @FXML
+   	private TextField textFieldRefine;
     
     @FXML
     private TextArea textAreaConsole;
@@ -125,7 +130,8 @@ public class Controller {
 	    		} else 
 	    			NumOfItems--;
 	    	}
-	    			
+	    	
+	    	RefineButton.setDisable(false);	
 	    	textAreaConsole.setText(output);
 	        UpdateTable(result);
 
@@ -276,6 +282,46 @@ public class Controller {
     }
     @FXML
     private void actionRefine() {
+    	
+    	tableView.getItems().clear();
+    	RefineButton.setDisable(true);
+    	System.out.println("actionSearch: " + textFieldRefine.getText());
+    	System.out.println("Loading output...");
+    	List<Item> result = scraper.scrape(textFieldKeyword.getText());
+    	
+    	String output = "";
+    	int NumOfItems = result.size(); //Do not remove! Need for subtracting "0" price items
+    	double TotalPrice = 0;
+    	int MinPriceItemIndex = 0;
+    	int LatestItemIndex = 0;
+    	
+        if (NumOfItems > 0) {        	
+	    	for (Item item : result) {
+	    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+	    		
+	    		if (item.getPrice() > 0) {
+		    		//Calculate total price
+		    		TotalPrice += item.getPrice();
+		    		
+		    		//Find lowest price
+		    		if (item.getPrice() < result.get(MinPriceItemIndex).getPrice())
+		    			MinPriceItemIndex = result.indexOf(item);
+		    		
+		    		//Find latest item
+		    		if(item.getDate().compareTo(result.get(LatestItemIndex).getDate()) > 0)
+		    			LatestItemIndex = result.indexOf(item);
+	    		} else 
+	    			NumOfItems--;
+	    	}
+	    	
+	    	
+	    	textAreaConsole.setText(output);
+	        UpdateTable(result);
+
+        } else
+        	textAreaConsole.setText("Search result empty");
+    	UpdateSummary(result, NumOfItems, TotalPrice, MinPriceItemIndex, LatestItemIndex);
+    	System.out.println("Finish loading");
     	
     }
 }
