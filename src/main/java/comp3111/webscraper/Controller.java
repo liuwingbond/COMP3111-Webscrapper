@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Button;
 import java.util.List;
 import javafx.event.*;
 import java.awt.Desktop;
@@ -34,6 +35,10 @@ import javafx.util.Callback;
  * 
  */
 public class Controller {
+	
+	@FXML
+	private Button RefineButton;
+	
 
     @FXML 
     private Label labelCount; 
@@ -269,5 +274,10 @@ public class Controller {
     private void actionNew() {
     	System.out.println("actionNew");
     }
+    @FXML
+    private void actionRefine() {
+    	
+    }
 }
+
 
