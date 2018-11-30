@@ -18,19 +18,19 @@ import java.util.Vector;
 /**
  * WebScraper provide a sample code that scrape web content. After it is constructed, you can call the method scrape with a keyword, 
  * the client will go to the default url and parse the page by looking at the HTML DOM.  
- * <br/>
+ * <br>
  * In this particular sample code, it access to craigslist.org. You can directly search on an entry by typing the URL
- * <br/>
+ * <br>
  * https://newyork.craigslist.org/search/sss?sort=rel&amp;query=KEYWORD
- *  <br/>
+ *  <br>
  * where KEYWORD is the keyword you want to search.
- * <br/>
+ * <br>
  * Assume you are working on Chrome, paste the url into your browser and press F12 to load the source code of the HTML. You might be freak
  * out if you have never seen a HTML source code before. Keep calm and move on. Press Ctrl-Shift-C (or CMD-Shift-C if you got a mac) and move your
  * mouse cursor around, different part of the HTML code and the corresponding the HTML objects will be highlighted. Explore your HTML page from
  * body &rarr; section class="page-container" &rarr; form id="searchform" &rarr; div class="content" &rarr; ul class="rows" &rarr; any one of the multiple 
  * li class="result-row" &rarr; p class="result-info". You might see something like this:
- * <br/>
+ * <br>
  * <pre>
  * {@code
  *    <p class="result-info">
@@ -57,7 +57,7 @@ import java.util.Vector;
  *   </p>
  *}
  *</pre>
- * <br/>
+ * <br>
  * The code 
  * <pre>
  * {@code
