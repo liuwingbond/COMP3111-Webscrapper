@@ -18,6 +18,15 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import javafx.collections.FXCollections;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.Hyperlink;
+import javafx.util.Callback;
 
 /**
  * 
@@ -46,6 +55,22 @@ public class Controller {
     
     private WebScraper scraper;
     
+    @FXML
+    private TableView<Item> tableView;
+    
+    @FXML
+    private TableColumn<Item, String> title;
+
+    @FXML
+    private TableColumn<Item, String> price;
+
+    @FXML
+    private TableColumn<Item, String> url;
+
+    @FXML
+    private TableColumn<Item,LocalDateTime> date;  
+    
+    
     /**
      * Default controller
      */
@@ -66,6 +91,7 @@ public class Controller {
 	 */
     @FXML
     private void actionSearch() {
+    	tableView.getItems().clear();
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
     	System.out.println("Loading output...");
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
@@ -96,6 +122,7 @@ public class Controller {
 	    	}
 	    			
 	    	textAreaConsole.setText(output);
+	        UpdateTable(result);
 
         } else
         	textAreaConsole.setText("Search result empty");
@@ -173,6 +200,67 @@ public class Controller {
 	    	labelLatest.setText("-");
     	}
     }
+    
+    @FXML
+    private void UpdateTable(List<Item> result) {
+		title.setCellValueFactory(new PropertyValueFactory<>("title"));
+		price.setCellValueFactory(new PropertyValueFactory<>("price"));
+		url.setCellValueFactory(new PropertyValueFactory<>("url"));
+		date.setCellValueFactory(new PropertyValueFactory<Item,LocalDateTime>("date"));
+		
+		title.setEditable(false);
+		title.setSortable(true); 
+		price.setEditable(false);
+		price.setSortable(true); 
+		url.setEditable(false);
+		url.setSortable(true); 
+		date.setEditable(false);
+		date.setSortable(true); 
+		Callback<TableColumn<Item, String>, TableCell<Item, String>> cellFactory0
+        = (final TableColumn<Item, String> entry) -> {
+            final TableCell<Item, String> cell = new TableCell<Item, String>()
+    {
+
+        Hyperlink hyperlink = new Hyperlink();
+
+        @Override
+        public void updateItem(String item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (empty) {
+                setGraphic(null);
+                setText(null);
+            }
+            else {
+            	Item tempParam = tableView.getItems().get(getIndex());
+                hyperlink.setText(item);
+                hyperlink.setOnAction(new EventHandler<ActionEvent>() {
+    	    	    @Override
+    	    	    public void handle(ActionEvent e) {
+    	    	        System.out.println("Opening URL");
+    	    	        openURI(item);
+    	    	    }
+    	    	});
+                setGraphic(hyperlink);
+                setText(null);
+            }
+        }
+    };
+            return cell;
+        };
+        url.setCellFactory(cellFactory0);
+	
+    	ObservableList<Item> data = FXCollections.observableArrayList();
+		
+    	if (result.size() > 0) {
+    		
+	    	for (Item item : result) {
+	    		data.add(item);
+	    	}
+    	}
+		tableView.setItems(data);
+    }
+    
     
     /**
      * Called when the new button is pressed. Very dummy action - print something in the command prompt.
