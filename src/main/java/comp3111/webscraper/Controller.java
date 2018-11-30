@@ -70,7 +70,6 @@ public class Controller {
     @FXML
     private void actionSearch() {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
-    	textAreaConsole.setText("Loading output...");
     	System.out.println("Loading output...");
     	List<Item> result = scraper.scrape(textFieldKeyword.getText());
     	
