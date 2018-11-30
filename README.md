@@ -5,7 +5,7 @@
 |---|---|---|
 |Lai Ho Man|Basic 3|Basic 4|
 |Liu Wing Bond|Basic 1|Basic 2|
-|Shek|Basic 5|Basic 6|
+|Shek Wing Chun|Basic 5|Basic 6|
 
 ## Project Problem Statement and Activities
 
