@@ -84,12 +84,16 @@ public class WebScraper {
 		client.getOptions().setJavaScriptEnabled(false);
 	}
 
+	/**
+	 * Sort all items in the parameter by price in Descending order
+	 * @param list - a List of items
+	 */
 	private void sortItemsList (List<Item> list) {
 		list.sort(Comparator.comparingDouble(Item::getPrice).reversed());
 	}
 	
 	/**
-	 * The only method implemented in this class, to scrape web content from the craigslist
+	 * To scrape web content from the craigslist
 	 * 
 	 * @param keyword - the keyword you want to search
 	 * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
@@ -156,6 +160,11 @@ public class WebScraper {
 		return null;
 	}
 	
+	/**
+	 *  To scrape web content from the Preloved
+	 * @param keyword - the keyword you want to search
+	 * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
+	 */
 	private void scrapePreloved(String keyword, Vector<Item> CraigslistResult) {
 		try {
 			System.out.println("Scraping from " + DEFAULT_URL2);
